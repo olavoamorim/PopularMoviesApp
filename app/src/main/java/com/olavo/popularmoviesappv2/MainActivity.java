@@ -134,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
             while (!res.isAfterLast()) {
 
                 String name = res.getString(res.getColumnIndex("POSTER_DETAIL"));
-                Picasso.with(context)
+                /*Picasso.with(context)
                         .load("https://image.tmdb.org/t/p/w500//" +name)
-                        .into(iv_movieLeft);
+                        .into(iv_movieLeft);*/
 
                 listFavMovies.add(name);
                 res.moveToNext();
@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //adapter = new AdapterMovies(listFavMovies,MainActivity.this);
-        //recyclerView.setAdapter(adapter);
+        adapter = new AdapterMovies(listFavMovies,context);
+        recyclerView.setAdapter(adapter);
 
     }
 

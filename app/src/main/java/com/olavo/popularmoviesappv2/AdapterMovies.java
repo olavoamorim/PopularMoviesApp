@@ -22,11 +22,17 @@ import java.util.List;
 
 public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder>  {
 
+    private ArrayList<String> listFavMovies;
     private List<MovieResults.ResultsBean> listMovies;
     private Context context;
 
     public AdapterMovies(List<MovieResults.ResultsBean> listMovies, Context context) {
         this.listMovies = listMovies;
+        this.context = context;
+    }
+
+    public AdapterMovies(ArrayList<String> listFavMovies, Context context) {
+        this.listFavMovies = listFavMovies;
         this.context = context;
     }
 

@@ -14,4 +14,10 @@
         android:title="Popular"
         />
 
+    <item
+        android:id="@+id/favorites"
+        android:orderInCategory="100"
+        android:title="Favorites"
+        />
+
 </menu>

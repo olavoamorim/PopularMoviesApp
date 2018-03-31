@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -20,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -46,6 +49,13 @@ public class MainActivity extends AppCompatActivity {
     GridLayoutManager mGridLayoutManager;
 
     private List<ListMovies> listMovies;
+    public static String FAVORITES = "MyFavMovies";
+
+    private Context context;
+    public ImageView iv_movieLeft;
+
+    DatabaseHelper myDb;
+    ArrayList<String> listFavMovies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         isOnline();
         loadRecyclerViewData();
+
+        myDb = new DatabaseHelper(this);
 
 
     }
@@ -87,8 +99,55 @@ public class MainActivity extends AppCompatActivity {
                 CATEGORY = "popular";
                 loadRecyclerViewData();
                 return true;
+            case (R.id.favorites):
+                loadFavorites();
+                return true;
         }
         return false;
+    }
+
+    private void loadFavorites() {
+
+        int mNoOfColumns = Utility.calculateNoOfColumns(getApplicationContext());
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(false);
+
+        recyclerView.setLayoutManager(new GridLayoutManager(this, mNoOfColumns));
+
+        Cursor res = myDb.getAllData();
+        if (res.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "You have no favorites saved", Toast.LENGTH_SHORT).show();
+            loadRecyclerViewData();
+            return;
+        }
+
+        listFavMovies = new ArrayList<>();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiInterface myInterface = retrofit.create(ApiInterface.class);
+
+
+        if (res.moveToFirst()) {
+            while (!res.isAfterLast()) {
+
+                String name = res.getString(res.getColumnIndex("POSTER_DETAIL"));
+                Picasso.with(context)
+                        .load("https://image.tmdb.org/t/p/w500//" +name)
+                        .into(iv_movieLeft);
+
+                listFavMovies.add(name);
+                res.moveToNext();
+
+            }
+        }
+
+
+        //adapter = new AdapterMovies(listFavMovies,MainActivity.this);
+        //recyclerView.setAdapter(adapter);
+
     }
 
     private void loadRecyclerViewData() {

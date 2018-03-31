@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder
         this.context = context;
     }
 
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -43,7 +45,6 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder
 
         Picasso.with(context)
                 .load("https://image.tmdb.org/t/p/w500//" +listMovies1.getPoster_path())
-                //.resize(300,300)
                 .into(holder.iv_movieLeft);
 
     }
@@ -56,7 +57,6 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView iv_movieLeft;
-        public GridLayout gridLayout;
         public TextView movieTitle;
         public ImageView posterDetail;
         public TextView releaseDate;
@@ -67,7 +67,6 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder
             super(itemView);
 
             iv_movieLeft = (ImageView) itemView.findViewById(R.id.iv_movieLeft);
-            gridLayout = (GridLayout) itemView.findViewById(R.id.gridLayout);
             movieTitle = (TextView) itemView.findViewById(R.id.movieTitle);
             posterDetail = (ImageView) itemView.findViewById(R.id.posterDetail);
             releaseDate = (TextView) itemView.findViewById(R.id.releaseDate);
@@ -88,6 +87,7 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.ViewHolder
                         intent.putExtra("releaseDate", clickedDataItem.getRelease_date());
                         intent.putExtra("rating", Double.toString(clickedDataItem.getVote_average()));
                         intent.putExtra("synopsis", clickedDataItem.getOverview());
+                        intent.putExtra("id", clickedDataItem.getId());
 
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);

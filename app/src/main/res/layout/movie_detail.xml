@@ -56,6 +56,49 @@
         android:layout_marginRight="18dp"
         android:layout_marginTop="30dp"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/line"
+        android:layout_below="@+id/synopsis"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/line"
+        android:id="@+id/trailer_title"
+        android:text="Trailers:"
+        android:layout_marginLeft="18dp"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/trailer_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/trailer_title"
+        android:padding="10dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="18dp"
+        android:text=" Trailer"
+        android:drawableLeft="@drawable/ic_play_arrow_black_24dp"/>
+
+    <ImageView
+        android:id="@+id/favorite_heart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_favorite_black_24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/rating"
+        android:layout_marginRight="55dp"
+        android:layout_marginTop="10dp" />
+
+
         </RelativeLayout>
 
     </ScrollView>

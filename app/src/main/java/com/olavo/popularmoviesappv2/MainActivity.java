@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static String BASE_URL = "https://api.themoviedb.org";
     public static int PAGE = 1;
-    public static String API_KEY = "54dc330ef61aa67f3cea8663c97489d7";
+    public static String API_KEY = "";
     public static String LANGUAGE = "en-US";
     public static String CATEGORY = "popular";
 

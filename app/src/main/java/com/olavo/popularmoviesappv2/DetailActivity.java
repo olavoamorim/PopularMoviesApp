@@ -44,7 +44,7 @@ public class DetailActivity extends AppCompatActivity {
     public TextView trailer;
     public ImageView favorite_heart;
     public static String BASE_URL = "https://api.themoviedb.org";
-    public static String API_KEY = "54dc330ef61aa67f3cea8663c97489d7";
+    public static String API_KEY = "";
 
     public static String FAVORITES = "MyFavMovies";
 

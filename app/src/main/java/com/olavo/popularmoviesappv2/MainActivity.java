@@ -1,30 +1,17 @@
 package com.olavo.popularmoviesappv2;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.ContactsContract;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public ImageView iv_movieLeft;
 
     DatabaseHelper myDb;
-    ArrayList<String> listFavMovies;
+    private List<MovieResults.ResultsBean> listFavMovies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,14 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, mNoOfColumns));
 
-        Cursor res = myDb.getAllData();
-        if (res.getCount() == 0) {
-            Toast.makeText(MainActivity.this, "You have no favorites saved", Toast.LENGTH_SHORT).show();
-            loadRecyclerViewData();
-            return;
-        }
-
-        listFavMovies = new ArrayList<>();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -130,22 +109,11 @@ public class MainActivity extends AppCompatActivity {
         ApiInterface myInterface = retrofit.create(ApiInterface.class);
 
 
-        if (res.moveToFirst()) {
-            while (!res.isAfterLast()) {
+        List<MovieResults.ResultsBean> listFavMovies = new ArrayList<>();
+        listFavMovies.clear();
+        listFavMovies.addAll(myDb.getAllData());
 
-                String name = res.getString(res.getColumnIndex("POSTER_DETAIL"));
-                /*Picasso.with(context)
-                        .load("https://image.tmdb.org/t/p/w500//" +name)
-                        .into(iv_movieLeft);*/
-
-                listFavMovies.add(name);
-                res.moveToNext();
-
-            }
-        }
-
-
-        adapter = new AdapterMovies(listFavMovies,context);
+        adapter = new AdapterMovies(listFavMovies,MainActivity.this);
         recyclerView.setAdapter(adapter);
 
     }

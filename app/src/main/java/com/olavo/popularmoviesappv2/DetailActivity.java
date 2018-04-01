@@ -2,6 +2,8 @@ package com.olavo.popularmoviesappv2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -78,49 +80,87 @@ public class DetailActivity extends AppCompatActivity {
                 .into(posterDetail);
 
         loadJSON();
+        loadReviews(movie_id);
 
         myDb = new DatabaseHelper(this);
 
         favorite_heart = findViewById(R.id.favorite_heart);
-        AddData();
-
-        /*SharedPreferences pref = getApplicationContext().getSharedPreferences("MyFavMovies", MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-
-        if (pref.contains(getIntent().getStringExtra("movieTitle"))){
-            favorite_heart.setColorFilter(Color.parseColor("#C8232C"), PorterDuff.Mode.SRC_ATOP);
-        }
-        else {
-            favorite_heart.setColorFilter(Color.parseColor("#808080"), PorterDuff.Mode.SRC_ATOP);
-        }
-
-        favorite_heart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SharedPreferences pref = getSharedPreferences("MyFavMovies", MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                    if (pref.contains(getIntent().getStringExtra("movieTitle"))){
-                        favorite_heart.setColorFilter(Color.parseColor("#808080"), PorterDuff.Mode.SRC_ATOP);
-                        editor.remove(getIntent().getStringExtra("movieTitle"));
-                        editor.remove(getIntent().getStringExtra("movieTitle")+"poster");
-                        editor.commit();
-                    }
-                    else {
-                        i++;
-                        favorite_heart.setColorFilter(Color.parseColor("#C8232C"), PorterDuff.Mode.SRC_ATOP);
-                        editor.putInt(String.valueOf(getIntent().getStringExtra("movieTitle")), movie_id);
-                        editor.putString(i+getIntent().getStringExtra("movieTitle"), getIntent().getStringExtra("posterDetail"));
-                        editor.commit();
-                    }
-            }
-        });*/
-
-    }
-
-    public void AddData(){
+        final boolean color  = hasObject(String.valueOf(movie_id));
         favorite_heart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (color==true){
+                    DeleteData();
+                } else {
+                    AddData();
+                }
+            }
+        });
+    }
+
+    private void loadReviews(int movie_id) {
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiInterface myInterface = retrofit.create(ApiInterface.class);
+
+        Call<ReviewResponse> call = myInterface.getReviews(movie_id,API_KEY);
+
+        call.enqueue(new Callback<ReviewResponse>() {
+            @Override
+            public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
+                final List<Review> reviews = response.body().getResults();
+
+                TextView author = (TextView) findViewById(R.id.author);
+                TextView review = (TextView) findViewById(R.id.review);
+
+                author.setText(reviews.get(1).getAuthor());
+                review.setText(reviews.get(1).getContent());
+
+
+            }
+            @Override
+            public void onFailure(Call<ReviewResponse> call, Throwable t) {
+                Log.d("Error", t.getMessage());
+                Toast.makeText(DetailActivity.this, "Error fetching trailer", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+
+    public boolean hasObject(String id) {
+        SQLiteDatabase db = myDb.getWritableDatabase();
+        String selectString = "SELECT * FROM " + "favorites_table" + " WHERE " + "MOVIE_ID" + " =?";
+
+        Cursor cursor = db.rawQuery(selectString, new String[] {id});
+
+        boolean hasObject = false;
+        if(cursor.moveToFirst()){
+            hasObject = true;
+            favorite_heart.setColorFilter(Color.parseColor("#C8232C"), PorterDuff.Mode.SRC_ATOP);
+            int count = 0;
+            while(cursor.moveToNext()){
+                count++;
+            }
+
+
+        } else {
+            favorite_heart.setColorFilter(Color.parseColor("#808080"), PorterDuff.Mode.SRC_ATOP);
+        }
+
+        cursor.close();
+        db.close();
+        return hasObject;
+    }
+
+    public void AddData(){
                 boolean isInserted = myDb.insertData(getIntent().getExtras().getInt("id"),getIntent().getStringExtra("movieTitle"),
                         getIntent().getStringExtra("posterDetail"),getIntent().getStringExtra("releaseDate"),
                         getIntent().getStringExtra("rating"),getIntent().getStringExtra("synopsis"));
@@ -131,8 +171,17 @@ public class DetailActivity extends AppCompatActivity {
                     Toast.makeText(DetailActivity.this, "Error saving to favorites", Toast.LENGTH_SHORT).show();
                     favorite_heart.setColorFilter(Color.parseColor("#808080"), PorterDuff.Mode.SRC_ATOP);
                 }
-            }
-        });
+    }
+
+    public void DeleteData() {
+                Integer deleteRows = myDb.deleteData(String.valueOf(movie_id));
+                if (deleteRows>0){
+                    Toast.makeText(DetailActivity.this, "Favorite removed", Toast.LENGTH_SHORT).show();
+                    favorite_heart.setColorFilter(Color.parseColor("#808080"), PorterDuff.Mode.SRC_ATOP);
+                } else {
+                    Toast.makeText(DetailActivity.this, "Error removing favorite", Toast.LENGTH_SHORT).show();
+                    favorite_heart.setColorFilter(Color.parseColor("#C8232C"), PorterDuff.Mode.SRC_ATOP);
+                }
     }
 
     private void loadJSON() {

@@ -21,6 +21,9 @@ public interface ApiInterface {
 
     @GET("/3/movie/{movie_id}/videos")
     Call<TrailerResponse> getMovieTrailer(@Path("movie_id") int id, @Query("api_key") String apiKey);
+
+    @GET("/3/movie/{movie_id}/reviews")
+    Call<ReviewResponse> getReviews(@Path("movie_id") int id, @Query("api_key") String apiKey);
 }
 
 

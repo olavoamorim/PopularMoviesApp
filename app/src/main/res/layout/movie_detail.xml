@@ -98,6 +98,55 @@
         android:layout_marginRight="55dp"
         android:layout_marginTop="10dp" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/line2"
+        android:layout_below="@+id/trailer_link"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/line2"
+        android:id="@+id/review_title"
+        android:text="Reviews:"
+        android:layout_marginLeft="18dp"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/review_title"
+        android:id="@+id/author_title"
+        android:text="Author: "
+        android:layout_marginLeft="22dp"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/author"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/review_title"
+        android:layout_marginLeft="90dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/author_title"
+        android:id="@+id/review"
+        android:layout_marginLeft="18dp"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+
 
         </RelativeLayout>
 

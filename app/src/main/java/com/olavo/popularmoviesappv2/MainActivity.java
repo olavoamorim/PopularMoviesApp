@@ -2,16 +2,19 @@ package com.olavo.popularmoviesappv2;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,37 +30,89 @@ public class MainActivity extends AppCompatActivity {
 
     public static String BASE_URL = "https://api.themoviedb.org";
     public static int PAGE = 1;
-    public static String API_KEY = "";
+    public static String API_KEY = "54dc330ef61aa67f3cea8663c97489d7";
     public static String LANGUAGE = "en-US";
     public static String CATEGORY = "popular";
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    public RecyclerView recyclerView;
+    public RecyclerView.Adapter adapter;
     GridLayoutManager mGridLayoutManager;
 
-    private List<ListMovies> listMovies;
+    public List<ListMovies> listMovies;
     public static String FAVORITES = "MyFavMovies";
 
-    private Context context;
+    public Context context;
     public ImageView iv_movieLeft;
 
     DatabaseHelper myDb;
-    private List<MovieResults.ResultsBean> listFavMovies;
+    List<MovieResults.ResultsBean> listFavMovies =  new ArrayList<>();
+    List<MovieResults.ResultsBean> listOfMovies =  new ArrayList<>();
+
+
+    public int menu;
+    //private SQLiteDatabase mDb;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         ImageView iv_left = (ImageView) findViewById(R.id.iv_movieLeft);
 
         isOnline();
-        loadRecyclerViewData();
+
+
+        //loadRecyclerViewData();
 
         myDb = new DatabaseHelper(this);
 
+        if (savedInstanceState!=null){
+            savedInstanceState.getInt("menu");
+            if (menu==1 || menu ==2){
+                loadRecyclerViewData();
+            }
+            if (menu==3) {
+                loadFavorites();
+            } else {
+                loadRecyclerViewData();
+            }
+        } else {
+            loadRecyclerViewData();
+        }
+
+        //DatabaseHelper dbHelper = new DatabaseHelper(this);
+        //mDb = dbHelper.getWritableDatabase();
+
+
 
     }
+
+    /*@Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        savedInstanceState.getInt("menu");
+        if (menu==1 || menu==2){
+            adapter = new AdapterMovies(listOfMovies,MainActivity.this);
+            recyclerView.setAdapter(adapter);
+        }
+        if (menu==3){
+            adapter = new AdapterMovies(listFavMovies,MainActivity.this);
+            recyclerView.setAdapter(adapter);
+        }
+        savedInstanceState.getParcelableArrayList("list");
+
+    }*/
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        //outState.putInt("count", mCount);
+        outState.putInt("menu", menu);
+        outState.putParcelableArrayList("list", listOfMovies);
+        super.onSaveInstanceState(outState);
+    }
+
 
     public static class Utility {
         public static int calculateNoOfColumns(Context context) {
@@ -80,20 +135,29 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case (R.id.topRated):
                 CATEGORY = "top_rated";
+                menu = 1;
                 loadRecyclerViewData();
                 return true;
             case (R.id.popular):
                 CATEGORY = "popular";
+                menu = 2;
                 loadRecyclerViewData();
                 return true;
             case (R.id.favorites):
+                menu = 3;
                 loadFavorites();
                 return true;
         }
         return false;
     }
 
-    private void loadFavorites() {
+    public void loadFavorites() {
+
+        getContentResolver().query(FavoritesDb.FavoritesEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                FavoritesDb.FavoritesEntry.COL_1);
 
         int mNoOfColumns = Utility.calculateNoOfColumns(getApplicationContext());
 
@@ -109,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
         ApiInterface myInterface = retrofit.create(ApiInterface.class);
 
 
-        List<MovieResults.ResultsBean> listFavMovies = new ArrayList<>();
+        //List<MovieResults.ResultsBean> listFavMovies = new ArrayList<>();
+
         listFavMovies.clear();
         listFavMovies.addAll(myDb.getAllData());
 
@@ -118,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void loadRecyclerViewData() {
+    public void loadRecyclerViewData() {
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading...");
         progressDialog.show();
@@ -146,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieResults> call, Response<MovieResults> response) {
                 MovieResults results = response.body();
-                List<MovieResults.ResultsBean> listOfMovies = results.getResults();
+                listOfMovies = results.getResults();
 
                 adapter = new AdapterMovies(listOfMovies,MainActivity.this);
                 recyclerView.setAdapter(adapter);
